@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: user-app-db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    container_name: user-app-backend
+    env_file:
+      - .env
+    ports:
+      - "${BACKEND_PORT}:5000"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: user-app-frontend
+    env_file:
+      - .env
+    ports:
+      - "${FRONTEND_PORT}:5173"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
