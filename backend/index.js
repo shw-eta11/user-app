@@ -6,7 +6,7 @@ const app = express();
 
 /* ✅ Allow frontend */
 app.use(cors({
-  origin: "http://localhost:5173"
+  origin: "http://localhost:5173",
           "http://13.234.231.255:5173"
 }));
 
