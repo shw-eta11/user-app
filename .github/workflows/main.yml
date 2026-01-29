@@ -42,7 +42,7 @@ jobs:
             FRONTEND_PORT=${{ secrets.FRONTEND_PORT }}
 
             VITE_API_URL=${{ secrets.VITE_API_URL }}
-           EOT
+            EOT
 
             echo "Stopping containers"
             docker compose down || true
