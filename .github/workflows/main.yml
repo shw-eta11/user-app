@@ -22,6 +22,11 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+      - name: Copy code to EC2
+        run: |
+          rsync -avz -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" \
+           ./ ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app/
+    
 
       #  Deploy on EC2
       - name: Deploy on EC2
