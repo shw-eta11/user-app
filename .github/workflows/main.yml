@@ -49,14 +49,14 @@ jobs:
             FRONTEND_PORT=${{ secrets.FRONTEND_PORT }}
 
             VITE_API_URL=${{ secrets.VITE_API_URL }}
-            ENVFILE
+          ENVFILE
 
-      echo "Stopping containers"
-      docker compose down || true
+            echo "Stopping containers"
+            docker compose down || true
 
-      echo "Building and starting containers
-      docker compose up -d --build
+            echo "Building and starting containers"
+            docker compose up -d --build
 
-      echo "Cleaning unused images"
-      docker system prune -f
-      EOF
+            echo "Cleaning unused images"
+            docker system prune -f
+          EOF
