@@ -1,5 +1,4 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -10,22 +9,43 @@ function App() {
     email: "",
     age: ""
   });
+  const [error, setError] = useState("");
 
   /* Load users */
   useEffect(() => {
     fetch(`${API_URL}/users`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load users");
+        return res.json();
+      })
       .then(setUsers)
-      .catch(console.error);
+      .catch((err) => setError(err.message));
   }, []);
 
   /* Add user */
   const addUser = async () => {
+    setError("");
+
+    if (!form.name || !form.email || !form.age) {
+      setError("All fields are required");
+      return;
+    }
+
     const res = await fetch(`${API_URL}/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
+      body: JSON.stringify({
+        name: form.name,
+        email: form.email,
+        age: Number(form.age)   // 🔥 FIXED
+      })
     });
+
+    if (!res.ok) {
+      const err = await res.json();
+      setError(err.error || "Failed to add user");
+      return;
+    }
 
     const data = await res.json();
     setUsers([...users, data]);
@@ -33,10 +53,13 @@ function App() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "20px", maxWidth: "400px" }}>
       <h1>User Management</h1>
 
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
       <h2>Add User</h2>
+
       <input
         placeholder="Name"
         value={form.name}
