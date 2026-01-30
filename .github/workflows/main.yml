@@ -23,40 +23,43 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      #  Copy code to EC2
       - name: Copy code to EC2 using rsync
         run: |
-          rsync -avz --delete \
-           ./ ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app/
-    
+          rsync -avz --delete ./ ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app/
 
       #  Deploy on EC2
       - name: Deploy on EC2
         run: |
           ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            set -e  # stop if any command fails
+            set -e  # Stop if any command fails
 
             cd /home/ubuntu/app
 
             echo "Creating .env file"
             cat <<ENVFILE > .env
-            DB_NAME=${{ secrets.DB_NAME }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_HOST=${{ secrets.DB_HOST }}
-            DB_PORT=${{ secrets.DB_PORT }}
+DB_NAME=${{ secrets.DB_NAME }}
+DB_USER=${{ secrets.DB_USER }}
+DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+DB_HOST=${{ secrets.DB_HOST }}
+DB_PORT=${{ secrets.DB_PORT }}
 
-            BACKEND_PORT=${{ secrets.BACKEND_PORT }}
-            FRONTEND_PORT=${{ secrets.FRONTEND_PORT }}
+BACKEND_PORT=${{ secrets.BACKEND_PORT }}
+FRONTEND_PORT=${{ secrets.FRONTEND_PORT }}
 
-            VITE_API_URL=${{ secrets.VITE_API_URL }}
-            ENVFILE
+VITE_API_URL=${{ secrets.VITE_API_URL }}
+ENVFILE
 
-            echo "Stopping containers"
+            echo "Stopping existing containers"
             docker compose down || true
 
-            echo "Building and starting containers"
+            echo "Building new images and starting containers"
             docker compose up -d --build
 
-            echo "Cleaning unused images"
+            echo "Cleaning unused images and containers"
             docker system prune -f
-          EOF
+
+            echo "Deployment finished"
+            docker ps
+            docker images
+EOF
